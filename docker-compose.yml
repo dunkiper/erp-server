@@ -1,0 +1,53 @@
+services:
+  erp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: erp-server:latest
+    container_name: erp-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_HTTP_PORTS: "8080"
+
+      # OBLIGATORIO en produccion: clave de firma JWT (minimo 32 caracteres).
+      # Sustituir por un secreto real. Ejemplo de generacion:
+      #   openssl rand -base64 48
+      Jwt__Issuer: "erp-server"
+      Jwt__Audience: "erp-clientes"
+      Jwt__SigningKey: "${ERP_JWT_SIGNING_KEY:?defina ERP_JWT_SIGNING_KEY en un fichero .env o en el entorno}"
+      Jwt__ExpirationMinutos: "60"
+
+      # Catalogo de licencias validas.
+      Licencias__Catalogo__0__Codigo: "ACME-1111-2222-3333"
+      Licencias__Catalogo__0__Cliente: "ACME Industrial S.L."
+      Licencias__Catalogo__0__Activa: "true"
+      Licencias__Catalogo__0__MaxConexionesSimultaneas: "5"
+
+      Licencias__Catalogo__1__Codigo: "GLOB-4444-5555-6666"
+      Licencias__Catalogo__1__Cliente: "Global Retail S.A."
+      Licencias__Catalogo__1__Activa: "true"
+      Licencias__Catalogo__1__MaxConexionesSimultaneas: "3"
+
+      Licencias__Catalogo__2__Codigo: "TEST-9999-8888-7777"
+      Licencias__Catalogo__2__Cliente: "Entorno de pruebas"
+      Licencias__Catalogo__2__Activa: "true"
+      Licencias__Catalogo__2__MaxConexionesSimultaneas: "10"
+
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+    security_opt:
+      - no-new-privileges:true
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

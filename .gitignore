@@ -1,0 +1,24 @@
+## Visual Studio / dotnet
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+
+## Ficheros de secretos
+.env
+.env.*
+!.env.example
+secrets.json
+
+## Sistema
+.DS_Store
+Thumbs.db
+
+## Build de Docker
+docker-compose*.yml.bak
